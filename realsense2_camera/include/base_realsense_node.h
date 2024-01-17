@@ -219,6 +219,8 @@ namespace realsense2_camera
         void startPublishers(const std::vector<rs2::stream_profile>& profiles, const RosSensor& sensor);
         void stopPublishers(const std::vector<rs2::stream_profile>& profiles);
 
+	void tf_publisher();
+	rclcpp::TimerBase::SharedPtr tf_timer_;
         rs2::device _dev;
         std::map<stream_index_pair, rs2::sensor> _sensors;
         std::map<std::string, std::function<void(rs2::frame)>> _sensors_callback;

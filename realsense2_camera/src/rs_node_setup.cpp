@@ -5,6 +5,9 @@
 #include <image_publisher.h>
 #include <fstream>
 #include <rclcpp/qos.hpp>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 using namespace realsense2_camera;
 using namespace rs2;
@@ -321,6 +324,9 @@ void BaseRealSenseNode::updateSensors()
                         std::lock_guard<std::mutex> lock_guard(_publish_tf_mutex);
                         _static_tf_msgs.clear();
                         publishStaticTransforms(wanted_profiles);
+			// Create timer to publish transforms periodically
+			tf_timer_ = _node.create_wall_timer(
+					500ms, std::bind(&BaseRealSenseNode::tf_publisher, this));
                     }
 
                     if(is_profile_changed)
@@ -349,6 +355,11 @@ void BaseRealSenseNode::updateSensors()
         ROS_ERROR_STREAM(__FILE__ << ":" << __LINE__ << ":" << "Unknown exception has occured!");
         throw;
     }
+}
+
+void BaseRealSenseNode::tf_publisher()
+{
+	_static_tf_broadcaster->sendTransform(_static_tf_msgs);
 }
 
 void BaseRealSenseNode::publishServices()
